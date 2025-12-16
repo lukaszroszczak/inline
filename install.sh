@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Installation script for the Clinic Queue Management System on Raspberry Pi OS
+# This script uses system packages for PyQt5 for better stability and performance.
 
 # Ensure the script is run with sudo
 if [ "$EUID" -ne 0 ]; then
@@ -13,7 +14,8 @@ echo "--- Starting Installation ---"
 # --- Step 1: Update package list and install system dependencies ---
 echo ">>> [1/4] Updating package list and installing system dependencies..."
 apt-get update
-apt-get install -y python3-venv python3-pip mpg123 mosquitto mosquitto-clients
+# Install core tools, audio player, MQTT broker, and Qt dependencies for PyQt5
+apt-get install -y python3-venv python3-pip mpg123 mosquitto mosquitto-clients qtbase5-dev python3-pyqt5
 
 # Check if mosquitto is active
 systemctl is-active --quiet mosquitto
@@ -26,12 +28,17 @@ echo ">>> System dependencies installed."
 echo ""
 
 # --- Step 2: Create a Python virtual environment ---
+echo ">>> [2/4] Creating Python virtual environment..."
 # This part should be run as the regular user, not root.
 # We create the directory and set permissions.
-echo ">>> [2/4] Creating Python virtual environment..."
-# We assume the script is run from the project directory.
 PROJECT_DIR=$(pwd)
 VENV_DIR="$PROJECT_DIR/venv"
+
+# Remove old venv if it exists
+if [ -d "$VENV_DIR" ]; then
+    echo "Removing old virtual environment."
+    rm -rf "$VENV_DIR"
+fi
 
 # Find a non-root user to own the venv directory
 # If the script is run with sudo, SUDO_USER is the original user.
@@ -42,16 +49,17 @@ if [ -z "$REGULAR_USER" ]; then
     echo "Warning: Could not determine the original user. Using '$REGULAR_USER' as the owner of the venv."
 fi
 
-# Create venv as the regular user
-sudo -u "$REGULAR_USER" python3 -m venv "$VENV_DIR"
+# Create venv with --system-site-packages to inherit system's PyQt5
+echo "Creating venv with access to system site-packages (for PyQt5)."
+sudo -u "$REGULAR_USER" python3 -m venv --system-site-packages "$VENV_DIR"
 echo "Virtual environment created at $VENV_DIR"
 echo ""
 
 # --- Step 3: Install Python packages ---
-echo ">>> [3/4] Installing Python packages..."
-# Activate venv and install packages
+echo ">>> [3/4] Installing remaining Python packages via pip..."
 # The packages must be installed for the venv's Python interpreter
-"$VENV_DIR/bin/pip" install PyQt5 Flask Flask-Cors paho-mqtt Pillow
+# PyQt5 is already installed via apt, so we only need the others.
+"$VENV_DIR/bin/pip" install Flask Flask-Cors paho-mqtt Pillow
 echo ">>> Python packages installed."
 echo ""
 
@@ -74,4 +82,3 @@ echo "   (After activating the venv)"
 echo "   python3 main_program.py"
 echo ""
 echo "--- Installation Finished ---"
-
