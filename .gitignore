@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+/test/
+/venv/
+
+# Audio/Video output
+/output/
+
+# Node
+/zigbee2mqtt/node_modules/
+/zigbee2mqtt/dist/
+/zigbee2mqtt/data/
+
+# Gemini CLI state
+GEMINI.md

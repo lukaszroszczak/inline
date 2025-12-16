@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gabinet {{ office.office_id }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div class="container mx-auto py-10">
+  <div class="grid grid-cols-1 gap-6">
+    <div class="bg-white p-4 shadow rounded">
+      <h2 class="text-center text-xl font-bold mb-4">Gabinet numer {{ office.office_id }}</h2>
+
+      <div class="border border-black rounded p-4 text-center mb-4">
+        <span class="text-5xl font-bold" id="value">{{ office.number }}</span>
+      </div>
+
+      <div class="flex justify-between items-center mb-4">
+        <button class="bg-gray-200 hover:bg-gray-300 text-xl font-bold py-2 px-4 rounded" onclick="sendAction('decrement')">-</button>
+        <button class="bg-gray-200 hover:bg-gray-300 text-xl font-bold py-2 px-4 rounded" onclick="sendAction('reset')">Zeruj</button>
+        <button class="bg-gray-200 hover:bg-gray-300 text-xl font-bold py-2 px-4 rounded" onclick="sendAction('increment')">+</button>
+      </div>
+
+      <div class="mb-4">
+        <input type="text" id="noteInput" placeholder="Notatka" class="border rounded w-full px-2 py-1 mb-2"/>
+        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded" onclick="addNumber()">Dodaj kolejny numerek</button>
+      </div>
+
+      <div class="bg-gray-200 p-4 rounded">
+        <h3 class="font-bold mb-2">Aktualna kolejka</h3>
+        <div id="queue">
+          {% for entry in office.queue %}
+            <div class="flex justify-between items-center mb-2">
+              <div>
+                <span class="mr-4">{{ entry.time }}</span>
+                <span class="mr-4">Nr: {{ entry.number }}</span>
+                <span class="italic text-gray-600">"{{ entry.note }}"</span>
+              </div>
+              <div>
+                <button class="text-blue-500 underline mr-2" onclick="editNote({{ entry.number }}, '{{ entry.note }}')">Edytuj</button>
+                <button class="text-red-500 underline" onclick="removeNumber({{ entry.number }})">Usuń</button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function sendAction(action) {
+    fetch(`/office/{{ office.office_id }}/action/` + action, { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          location.reload();
+        } else {
+          alert('Błąd: ' + d.error);
+        }
+      });
+  }
+
+  function addNumber() {
+    const noteField = document.getElementById('noteInput');
+    const note = noteField.value;
+    fetch(`/office/{{ office.office_id }}/action/add_number`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note })
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        location.reload();
+      } else {
+        alert('Błąd: ' + d.error);
+      }
+    });
+  }
+
+  function removeNumber(num) {
+    fetch(`/office/{{ office.office_id }}/action/remove_number`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify({ number: num })
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        location.reload();
+      } else {
+        alert('Błąd: ' + d.error);
+      }
+    });
+  }
+
+  function editNote(num, oldNote) {
+    const newNote = prompt("Podaj nową notatkę:", oldNote || "");
+    if (newNote !== null) {
+      fetch(`/office/{{ office.office_id }}/action/edit_number`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ number: num, note: newNote })
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          location.reload();
+        } else {
+          alert('Błąd: ' + d.error);
+        }
+      });
+    }
+  }
+</script>
+</body>
+</html>

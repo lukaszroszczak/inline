@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gabinet {{ office.office_id }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div class="container mx-auto py-10">
+  <div class="grid grid-cols-1 gap-6">
+    <div class="bg-white p-4 shadow rounded">
+      <h2 class="text-center text-xl font-bold mb-4">Gabinet numer {{ office.office_id }}</h2>
+      <div class="border border-black rounded p-4 text-center mb-4">
+        <span id="value" class="text-5xl font-bold">{{ office.number }}</span>
+      </div>
+      <div class="flex justify-between items-center mb-4">
+        <button class="bg-gray-200 hover:bg-gray-300 text-xl font-bold py-2 px-4 rounded" onclick="sendAction('decrement')">-</button>
+        <button class="bg-gray-200 hover:bg-gray-300 text-xl font-bold py-2 px-4 rounded" onclick="sendAction('reset')">Zeruj</button>
+        <button class="bg-gray-200 hover:bg-gray-300 text-xl font-bold py-2 px-4 rounded" onclick="sendAction('increment')">+</button>
+      </div>
+      <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mb-4" onclick="sendAction('add_number')">Dodaj kolejny numerek</button>
+      <div class="bg-gray-200 p-4 rounded">
+        <h3 class="font-bold mb-2">Aktualna kolejka</h3>
+        <div id="queue">
+          {% for entry in office.queue %}
+            <p>
+              {{ entry.time }} – Numer: {{ entry.number }}
+              <!-- Ewentualnie można dodać przycisk "Usuń" z fetch do remove_number,
+                   ale wymaga to JS z JSONem, jak w index. -->
+            </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function sendAction(action) {
+    fetch(`/office/{{ office.office_id }}/action/` + action, { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          // Najprościej: przeładuj stronę
+          location.reload();
+        } else {
+          alert('Błąd: ' + d.error);
+        }
+      });
+  }
+</script>
+
+</body>
+</html>
