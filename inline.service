@@ -1,0 +1,27 @@
+[Unit]
+Description=Inline Clinic Queue Management System
+# Start after the graphics system is available.
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+Type=simple
+# The working directory is crucial for finding logo.png and other assets.
+WorkingDirectory=/home/inline/inline
+# The command to run the application using the virtual environment's python.
+# We run as root, so no sudo is needed.
+ExecStart=/home/inline/inline/venv/bin/python3 main_program.py
+# Environment variable to select the correct Qt platform plugin for a headless/embedded system.
+Environment="QT_QPA_PLATFORM=linuxfb"
+# Restart the service if it fails.
+Restart=on-failure
+RestartSec=5
+# Redirect stdout/stderr to the systemd journal for logging.
+StandardOutput=journal
+StandardError=journal
+# Run as the root user to have permissions for the display framebuffer.
+User=root
+
+[Install]
+# This hook enables the service to start at boot when the graphical system is ready.
+WantedBy=graphical.target

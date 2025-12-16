@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Installation script for the Clinic Queue Management System on Raspberry Pi OS
-# This script uses system packages for PyQt5 for better stability and performance.
+# This script uses system packages for PyQt5 and sets up a systemd service for auto-start.
 
 # Ensure the script is run with sudo
 if [ "$EUID" -ne 0 ]; then
@@ -12,7 +12,7 @@ fi
 echo "--- Starting Installation ---"
 
 # --- Step 1: Update package list and install system dependencies ---
-echo ">>> [1/4] Updating package list and installing system dependencies..."
+echo ">>> [1/5] Updating package list and installing system dependencies..."
 apt-get update
 # Install core tools, audio player, MQTT broker, and Qt dependencies for PyQt5
 apt-get install -y python3-venv python3-pip mpg123 mosquitto mosquitto-clients qtbase5-dev python3-pyqt5
@@ -28,61 +28,62 @@ echo ">>> System dependencies installed."
 echo ""
 
 # --- Step 2: Create a Python virtual environment ---
-echo ">>> [2/4] Creating Python virtual environment..."
-# This part should be run as the regular user, not root.
-# We create the directory and set permissions.
+echo ">>> [2/5] Creating Python virtual environment..."
 PROJECT_DIR=$(pwd)
 VENV_DIR="$PROJECT_DIR/venv"
 
-# Remove old venv if it exists
 if [ -d "$VENV_DIR" ]; then
     echo "Removing old virtual environment."
     rm -rf "$VENV_DIR"
 fi
 
-# Find a non-root user to own the venv directory
-# If the script is run with sudo, SUDO_USER is the original user.
 REGULAR_USER=$SUDO_USER
 if [ -z "$REGULAR_USER" ]; then
-    # Fallback if SUDO_USER is not set
     REGULAR_USER=$(ls /home | head -n 1)
     echo "Warning: Could not determine the original user. Using '$REGULAR_USER' as the owner of the venv."
 fi
 
-# Create venv with --system-site-packages to inherit system's PyQt5
 echo "Creating venv with access to system site-packages (for PyQt5)."
 sudo -u "$REGULAR_USER" python3 -m venv --system-site-packages "$VENV_DIR"
 echo "Virtual environment created at $VENV_DIR"
 echo ""
 
 # --- Step 3: Install Python packages ---
-echo ">>> [3/4] Installing remaining Python packages via pip..."
-# The packages must be installed for the venv's Python interpreter
-# PyQt5 is already installed via apt, so we only need the others.
+echo ">>> [3/5] Installing remaining Python packages via pip..."
 "$VENV_DIR/bin/pip" install Flask Flask-Cors paho-mqtt Pillow
 echo ">>> Python packages installed."
 echo ""
 
-# --- Step 4: Final instructions ---
-echo ">>> [4/4] Installation Complete!"
+# --- Step 4: Setup systemd service ---
+echo ">>> [4/5] Setting up systemd service for auto-start..."
+if [ -f "inline.service" ]; then
+    # Copy the service file to the systemd directory
+    cp inline.service /etc/systemd/system/inline.service
+    # Reload the systemd daemon to recognize the new service
+    systemctl daemon-reload
+    # Enable the service to start on boot
+    systemctl enable inline.service
+    echo ">>> Service 'inline.service' created and enabled."
+else
+    echo ">>> WARNING: 'inline.service' file not found. Skipping systemd setup."
+fi
+echo ""
+
+# --- Step 5: Final instructions ---
+echo ">>> [5/5] Installation Complete!"
 echo ""
 echo "--- Next Steps ---"
-echo "1. IMPORTANT: The following commands should be run from a terminal on the Raspberry Pi's graphical desktop, NOT over a standard SSH session."
+echo "1. Configure Zigbee buttons & Generate Audio Files as described in README.md"
 echo ""
-echo "2. Open a terminal and navigate to the project directory:"
-echo "   cd ${PROJECT_DIR}"
+echo "2. REBOOT the Raspberry Pi for all changes to take effect."
+echo "   sudo reboot"
 echo ""
-echo "3. Activate the virtual environment:"
-echo "   source ${VENV_DIR}/bin/activate"
+echo "3. After rebooting, the application should start automatically."
 echo ""
-echo "4. Configure Zigbee buttons & Generate Audio Files as described in README.md"
-echo ""
-echo "5. Run the application in the foreground:"
-echo "   (From the project directory, with venv active)"
-echo "   sudo DISPLAY=:0 XAUTHORITY=\$XAUTHORITY python3 main_program.py"
-echo ""
-echo "6. To run persistently in the background:"
-echo "   (From the project directory)"
-echo "   nohup sudo DISPLAY=:0 XAUTHORITY=\$XAUTHORITY python3 main_program.py > app.log 2>&1 &"
+echo "4. You can manage the application using these commands:"
+echo "   - Check status: sudo systemctl status inline"
+echo "   - Stop the service: sudo systemctl stop inline"
+echo "   - Start the service: sudo systemctl start inline"
+echo "   - View logs: sudo journalctl -u inline -f"
 echo ""
 echo "--- Installation Finished ---"
