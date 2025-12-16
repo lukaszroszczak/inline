@@ -11,6 +11,3 @@ __pycache__/
 /zigbee2mqtt/node_modules/
 /zigbee2mqtt/dist/
 /zigbee2mqtt/data/
-
-# Gemini CLI state
-GEMINI.md
