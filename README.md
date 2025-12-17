@@ -100,3 +100,17 @@ You can manage it using standard `systemctl` commands:
     ```bash
     sudo systemctl disable inline
     ```
+
+## 🌐 Web Interface
+
+The web interface allows for remote management of the queues. Once the application is running, you can access it from any device on the same network.
+
+*   **Main Dashboard:**
+    ```
+    http://<adres-ip-raspberry>:5000
+    ```
+*   **Office-specific view (example for Office 1):**
+    ```
+    http://<adres-ip-raspberry>:5000/office/1
+    ```
+Replace `<adres-ip-raspberry>` with the actual IP address of your Raspberry Pi.

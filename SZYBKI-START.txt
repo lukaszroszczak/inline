@@ -1,0 +1,42 @@
+# Szybki Start
+
+Ten plik zawiera skróconą instrukcję instalacji i zarządzania aplikacją.
+Pełna dokumentacja znajduje się w pliku README.md.
+
+## 1. Instalacja (na nowym systemie Raspberry Pi OS)
+
+# Klonowanie repozytorium
+git clone https://github.com/lukaszroszczak/inline.git
+cd inline
+
+# Uruchomienie skryptu instalacyjnego
+sudo ./install.sh
+
+# Konfiguracja (opcjonalnie)
+# - Edytuj main_program.py, aby ustawić ID przycisków Zigbee.
+# - Edytuj gui.ini, aby zmienić wygląd.
+
+# Restart systemu
+sudo reboot
+
+## 2. Zarządzanie Aplikacją (usługa 'inline')
+
+# Sprawdzenie statusu
+sudo systemctl status inline
+
+# Restart usługi
+sudo systemctl restart inline
+
+# Zatrzymanie usługi
+sudo systemctl stop inline
+
+# Oglądanie logów na żywo
+sudo journalctl -u inline -f
+
+## 3. Dostęp przez Przeglądarkę
+
+# Główny panel (zastąp <adres-ip-raspberry> adresem IP Twojego Pi)
+http://<adres-ip-raspberry>:5000
+
+# Widok dla konkretnego gabinetu (np. gabinet 1)
+http://<adres-ip-raspberry>:5000/office/1
