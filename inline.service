@@ -1,29 +1,28 @@
 [Unit]
-Description=Inline Clinic Queue Management System
-# Start after the graphics system and user login is complete.
+Description=Inline Clinic Queue Management System (Debug Logging)
 After=graphical.target network-online.target
 Wants=graphical.target network-online.target
 
 [Service]
 Type=simple
-# Add a delay to ensure the graphical session and .Xauthority file are ready.
+# Delay to ensure the graphical session is ready.
 ExecStartPre=/bin/sleep 15
-# The working directory is crucial for finding logo.png and other assets.
+# Change to the correct working directory.
 WorkingDirectory=/home/inline/inline
-# The command to run the application using the virtual environment's python.
-ExecStart=/home/inline/inline/venv/bin/python3 main_program.py
-# Environment variables for a standard X11 desktop session.
+#
+# Use sh -c to robustly redirect all stdout and stderr to a log file.
+# This is better for debugging than the systemd journal sometimes.
+ExecStart=/bin/sh -c "/home/inline/inline/venv/bin/python3 main_program.py >> /home/inline/inline/service.log 2>&1"
+#
+# Environment variables for the X11 desktop session.
 Environment="DISPLAY=:0"
 Environment="XAUTHORITY=/home/inline/.Xauthority"
+#
 # Restart the service if it fails.
 Restart=on-failure
 RestartSec=5
-# Redirect stdout/stderr to the systemd journal for logging.
-StandardOutput=journal
-StandardError=journal
 # Run as the 'inline' user, who owns the display session.
 User=inline
 
 [Install]
-# This hook enables the service to start at boot when the graphical system is ready.
 WantedBy=graphical.target
