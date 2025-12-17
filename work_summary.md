@@ -16,22 +16,26 @@
     *   Tworzy środowisko wirtualne z dostępem do systemowych pakietów (`--system-site-packages`).
     *   Instaluje pakiety Pythona: `Flask`, `Flask-Cors`, `paho-mqtt`, `Pillow`.
 *   **Rozwiązanie problemów z uruchomieniem GUI**:
-    *   Aplikacja została pomyślnie uruchomiona na wyświetlaczu Raspberry Pi.
+    *   Aplikacja została pomyślnie uruchomiona na wyświetlaczu Raspberry Pi w trybie interaktywnym (przez SSH).
     *   Rozwiązano problemy z autoryzacją X11 (`Authorization required`), przekazując `DISPLAY=:0` oraz `XAUTHORITY` do środowiska `sudo`.
-    *   Rozwiązano problemy z dostępem do sprzętu graficznego (`drmModeGetResources failed`), uruchamiając aplikację jako `root` i ustawiając `QT_QPA_PLATFORM=linuxfb`.
+    *   Rozwiązano problemy z dostępem do sprzętu graficznego (`drmModeGetResources failed`), uruchamiając aplikację jako `root` i ustawiając `QT_QPA_PLATFORM=linuxfb` (wcześniej), a potem `QT_QPA_PLATFORM=xcb` (ostatecznie działająca konfiguracja).
 *   **Usługa `systemd`**:
     *   Utworzono plik usługi `inline.service` do automatycznego uruchamiania aplikacji przy starcie systemu i zarządzania nią.
     *   Skrypt `install.sh` został zaktualizowany o kroki instalacji i włączania tej usługi `systemd`.
+    *   Wprowadzono zmiany w `inline.service` (opóźnienie startu, uruchamianie jako użytkownik `inline`, `xcb` zamiast `linuxfb`, przekazywanie `XAUTHORITY`) w celu rozwiązania problemów z autostartem GUI.
+    *   Obecnie **trwa diagnozowanie problemu z autostartem aplikacji graficznej po restarcie Raspberry Pi**. Ostatnia wersja `inline.service` przekierowuje logi do pliku `service.log` w celu szczegółowej diagnostyki.
 
 ## 3. Dokumentacja
 
-*   Plik `README.md` został stworzony i zaktualizowany o szczegółowy opis projektu, funkcji, stosu technologicznego oraz instrukcji instalacji i zarządzania aplikacją jako usługą `systemd`.
+*   Plik `README.md` został stworzony i zaktualizowany o szczegółowy opis projektu, funkcji, stosu technologicznego oraz instrukcji instalacji i zarządzania aplikacją jako usługą `systemd`. Dodano sekcję o dostępie do interfejsu webowego.
 *   Plik `GEMINI.md` został zaktualizowany o opis projektu.
+*   Utworzono `SZYBKI-START.txt` zawierający skróconą instrukcję obsługi.
+*   Dodano komentarze do `gui.ini`, wyjaśniające każdy parametr.
 
-## 4. Bieżący status
+## 4. Bieżący status prac
 
-*   Aplikacja powinna uruchamiać się automatycznie przy starcie Raspberry Pi w trybie pełnoekranowym i z widocznym logo.
-*   Serwer Flask i komunikacja MQTT powinny działać poprawnie w tle.
+*   Trwa oczekiwanie na dostarczenie przez użytkownika zawartości pliku `service.log` z Raspberry Pi, który ma pomóc w zdiagnozowaniu problemu z autostartem aplikacji graficznej.
+*   Zgłoszono nowy błąd: **Brak migania numerów** po zmianie wartości licznika przez panel webowy. Został zdiagnozowany i wymaga implementacji poprawki w `main_program.py`.
 
 ## 5. Dalsze kroki (do rozważenia przez użytkownika)
 
