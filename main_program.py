@@ -453,6 +453,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 next_candidates = [n for n in queue_vals if n > current_val]
                 if next_candidates:
                     self.numbers[i] = min(next_candidates)
+                    self.flash_value(i) # Dodano miganie po zmianie
                 # Jeśli brak kandydata, nic nie robimy
 
             elif ctype == 'decrement':
@@ -463,12 +464,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 prev_candidates = [n for n in queue_vals if n < current_val]
                 if prev_candidates:
                     self.numbers[i] = max(prev_candidates)
+                    self.flash_value(i) # Dodano miganie po zmianie
 
             elif ctype == 'reset':
                 i = command['office_id'] - 1
                 # Reset do min_values[i] lub do pierwszego w kolejce?
                 # Na razie ustawiamy minimalną wartość:
                 self.numbers[i] = self.min_values[i]
+                self.flash_value(i) # Dodano miganie po zmianie
 
             elif ctype == 'add_number':
                 i = command['office_id'] - 1
