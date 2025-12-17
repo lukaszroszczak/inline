@@ -5,7 +5,7 @@ __pycache__/
 /venv/
 
 # Audio/Video output
-/output/
+# /output/ (tracked) – audio assets required at runtime
 
 # Node
 /zigbee2mqtt/node_modules/
