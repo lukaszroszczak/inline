@@ -588,7 +588,7 @@ class MainWindow(QtWidgets.QMainWindow):
         def play_sounds():
             for sf in sound_files:
                 if os.path.exists(sf):
-                    subprocess.run(['mpg123', sf],
+                    subprocess.run(['mpg123', '-a', 'plughw:1,0', sf],
                                    stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
                 else:
                     print(f"Błąd: Plik {sf} nie istnieje.")

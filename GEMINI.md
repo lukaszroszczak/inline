@@ -10,7 +10,7 @@
 
 **Project Context:**
 Ten projekt to aplikacja python/flask, używa zigbee do komunikacji z przyciskami, środowiska graficznego do wyświetlania pełnoekranowej aplikacji.
-Prace będą prowadzone nad zmianami, usprawnieniami, naprawianiem błędów, dodawaniem funkcji. Całość ma być domyślnie uruchomiona na raspberry pi 5, zdalne polecenia na raspberry możesz wykonywać na hoście luke@192.168.151.181, hasło 3003.tech
+Prace będą prowadzone nad zmianami, usprawnieniami, naprawianiem błędów, dodawaniem funkcji. Całość ma być domyślnie uruchomiona na raspberry pi 5, zdalne polecenia na raspberry możesz wykonywać na hoście inline@192.168.151.181, hasło inline
 
 ---
 ## Project Description
