@@ -569,13 +569,26 @@ class MainWindow(QtWidgets.QMainWindow):
         timer.start()
 
     def play_sound_sequence(self, number, button_id):
+        """Build and enqueue sound sequence for a given number/office."""
         def enqueue_sounds():
             sound_files = [
                 os.path.join('output', 'dingdong.mp3'),
                 os.path.join('output', 'numer.mp3'),
-                os.path.join('output', f'{number}.mp3'),
-                os.path.join('output', f'gabinet_nr_{button_id + 1}.mp3')
             ]
+
+            # Składanie liczby z setek i reszty (np. 234 -> 200.mp3 + 34.mp3)
+            if number >= 100:
+                hundreds = (number // 100) * 100
+                remainder = number % 100
+                sound_files.append(os.path.join('output', f'{hundreds}.mp3'))
+                if remainder:
+                    sound_files.append(os.path.join('output', f'{remainder}.mp3'))
+            else:
+                sound_files.append(os.path.join('output', f'{number}.mp3'))
+
+            # Plik gabinetu
+            sound_files.append(os.path.join('output', f'gabinet_nr_{button_id + 1}.mp3'))
+
             self.sound_queue.put(sound_files)
             self.process_sound_queue()
 
