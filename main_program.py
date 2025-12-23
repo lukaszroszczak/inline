@@ -454,6 +454,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if next_candidates:
                     self.numbers[i] = min(next_candidates)
                     self.flash_value(i) # Dodano miganie po zmianie
+                    self.play_sound_sequence(self.numbers[i], i)
                 # Jeśli brak kandydata, nic nie robimy
 
             elif ctype == 'decrement':
@@ -465,6 +466,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if prev_candidates:
                     self.numbers[i] = max(prev_candidates)
                     self.flash_value(i) # Dodano miganie po zmianie
+                    self.play_sound_sequence(self.numbers[i], i)
 
             elif ctype == 'reset':
                 i = command['office_id'] - 1
@@ -472,6 +474,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 # Na razie ustawiamy minimalną wartość:
                 self.numbers[i] = self.min_values[i]
                 self.flash_value(i) # Dodano miganie po zmianie
+                self.play_sound_sequence(self.numbers[i], i)
 
             elif ctype == 'add_number':
                 i = command['office_id'] - 1
