@@ -51,70 +51,111 @@
 </div>
 
 <script>
-  function sendAction(action) {
-    fetch(`/office/{{ office.office_id }}/action/` + action, { method: 'POST' })
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) {
-          location.reload();
-        } else {
-          alert('Błąd: ' + d.error);
-        }
+  const officeId = {{ office.office_id }};
+
+  async function refreshOffice() {
+    try {
+      const resp = await fetch('/status');
+      const data = await resp.json();
+      const idx = officeId - 1;
+
+      document.getElementById('value').textContent = data.numbers[idx];
+
+      const queueEl = document.getElementById('queue');
+      queueEl.innerHTML = '';
+      data.queues[idx].forEach(entry => {
+        const row = document.createElement('div');
+        row.className = 'flex justify-between items-center mb-2';
+
+        const left = document.createElement('div');
+        const spanTime = document.createElement('span');
+        spanTime.className = 'mr-4';
+        spanTime.textContent = entry.time;
+        const spanNum = document.createElement('span');
+        spanNum.className = 'mr-4';
+        spanNum.textContent = `Nr: ${entry.number}`;
+        const spanNote = document.createElement('span');
+        spanNote.className = 'italic text-gray-600';
+        spanNote.textContent = `"${entry.note}"`;
+        left.append(spanTime, spanNum, spanNote);
+
+        const right = document.createElement('div');
+        const btnEdit = document.createElement('button');
+        btnEdit.className = 'text-blue-500 underline mr-2';
+        btnEdit.textContent = 'Edytuj';
+        btnEdit.onclick = () => editNote(entry.number, entry.note);
+        const btnRemove = document.createElement('button');
+        btnRemove.className = 'text-red-500 underline';
+        btnRemove.textContent = 'Usuń';
+        btnRemove.onclick = () => removeNumber(entry.number);
+        right.append(btnEdit, btnRemove);
+
+        row.append(left, right);
+        queueEl.appendChild(row);
       });
+    } catch (e) {
+      console.error('Błąd odświeżania gabinetu', e);
+    }
   }
 
-  function addNumber() {
+  async function sendAction(action) {
+    const resp = await fetch(`/office/${officeId}/action/` + action, { method: 'POST' });
+    const d = await resp.json();
+    if (!d.success) {
+      alert('Błąd: ' + d.error);
+    }
+    refreshOffice();
+  }
+
+  async function addNumber() {
     const noteField = document.getElementById('noteInput');
     const note = noteField.value;
-    fetch(`/office/{{ office.office_id }}/action/add_number`, {
+    const resp = await fetch(`/office/${officeId}/action/add_number`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ note })
-    })
-    .then(r => r.json())
-    .then(d => {
-      if (d.success) {
-        location.reload();
-      } else {
-        alert('Błąd: ' + d.error);
-      }
     });
+    const d = await resp.json();
+    if (!d.success) {
+      alert('Błąd: ' + d.error);
+    }
+    noteField.value = '';
+    refreshOffice();
   }
 
-  function removeNumber(num) {
-    fetch(`/office/{{ office.office_id }}/action/remove_number`, {
+  async function removeNumber(num) {
+    const resp = await fetch(`/office/${officeId}/action/remove_number`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify({ number: num })
-    })
-    .then(r => r.json())
-    .then(d => {
-      if (d.success) {
-        location.reload();
-      } else {
-        alert('Błąd: ' + d.error);
-      }
     });
+    const d = await resp.json();
+    if (!d.success) {
+      alert('Błąd: ' + d.error);
+    }
+    refreshOffice();
   }
 
-  function editNote(num, oldNote) {
+  async function editNote(num, oldNote) {
     const newNote = prompt("Podaj nową notatkę:", oldNote || "");
     if (newNote !== null) {
-      fetch(`/office/{{ office.office_id }}/action/edit_number`, {
+      const resp = await fetch(`/office/${officeId}/action/edit_number`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ number: num, note: newNote })
-      })
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) {
-          location.reload();
-        } else {
-          alert('Błąd: ' + d.error);
-        }
       });
+      const d = await resp.json();
+      if (!d.success) {
+        alert('Błąd: ' + d.error);
+      }
+      refreshOffice();
     }
   }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    refreshOffice();
+    setInterval(refreshOffice, 400);
+  });
 </script>
 </body>
 </html>
