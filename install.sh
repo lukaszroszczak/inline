@@ -50,12 +50,19 @@ echo ""
 
 # --- Step 3: Install Python packages ---
 echo ">>> [3/5] Installing remaining Python packages via pip..."
-"$VENV_DIR/bin/pip" install Flask Flask-Cors paho-mqtt Pillow
+"$VENV_DIR/bin/pip" install Flask Flask-Cors paho-mqtt Pillow gTTS
 echo ">>> Python packages installed."
 echo ""
 
-# --- Step 4: Setup systemd service ---
-echo ">>> [4/5] Setting up systemd service for auto-start..."
+# --- Step 4: Generate audio assets (gTTS, uses Internet) ---
+echo ">>> [4/6] Generating audio assets (requires Internet access for gTTS)..."
+sudo -u "$REGULAR_USER" mkdir -p "$PROJECT_DIR/output"
+sudo -u "$REGULAR_USER" "$VENV_DIR/bin/python" "$PROJECT_DIR/output/gen.py"
+echo ">>> Audio assets generated in $PROJECT_DIR/output."
+echo ""
+
+# --- Step 5: Setup systemd service ---
+echo ">>> [5/6] Setting up systemd service for auto-start..."
 if [ -f "inline.service" ]; then
     # Copy the service file to the systemd directory
     cp inline.service /etc/systemd/system/inline.service
@@ -69,11 +76,11 @@ else
 fi
 echo ""
 
-# --- Step 5: Final instructions ---
-echo ">>> [5/5] Installation Complete!"
+# --- Step 6: Final instructions ---
+echo ">>> [6/6] Installation Complete!"
 echo ""
 echo "--- Next Steps ---"
-echo "1. Configure Zigbee buttons & Generate Audio Files as described in README.md"
+echo "1. Configure Zigbee buttons as described in README.md"
 echo ""
 echo "2. REBOOT the Raspberry Pi for all changes to take effect."
 echo "   sudo reboot"

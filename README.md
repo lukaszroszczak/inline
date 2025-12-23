@@ -60,7 +60,7 @@ Before rebooting, you should configure the application:
 
 *   **Zigbee Buttons:** Edit `main_program.py` and update the `button_id_to_column` dictionary with the IEEE addresses of your Zigbee buttons.
 *   **UI (Optional):** Edit `gui.ini` to customize the UI appearance if needed.
-*   **Audio Files:** Make sure you have all the required announcement sounds (e.g., `dingdong.mp3`, `101.mp3`, `gabinet_nr_1.mp3`) in the `output/` directory.
+*   **Audio Files:** Install script now generates default audio (0–99, 100/200/300, `gabinet_nr_1..3.mp3`, `numer.mp3`, `dingdong.mp3`) via gTTS. If you want custom lektors, replace files in `output/` with your own recordings.
 
 ### 3. Reboot
 
