@@ -1,0 +1,17 @@
+[Unit]
+Description=Zigbee2MQTT
+After=network.target
+
+[Service]
+# Usuwa stary symlink logów przed startem — bez tego po nagłym zaniku zasilania
+# zigbee2mqtt crashuje w pętlę z błędem EEXIST (restart counter dochodził do 62+).
+ExecStartPre=/bin/rm -f /home/luke/zigbee2mqtt/data/log/current
+ExecStart=/usr/bin/npm start --prefix /home/luke/zigbee2mqtt
+WorkingDirectory=/home/luke/zigbee2mqtt
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
